@@ -168,7 +168,14 @@
 
     .main-content {
       margin-left: 0 !important;
+      width: 100% !important;
+      max-width: 100vw !important;
       padding: 68px 16px 24px !important;
+      overflow-x: hidden;
+    }
+
+    body {
+      overflow-x: hidden;
     }
   }
 
@@ -185,6 +192,10 @@
 
     .hide-mobile {
       display: none !important;
+    }
+
+    .panel {
+      overflow-x: hidden;
     }
   }
 </style>
@@ -342,7 +353,7 @@ const briefFeed = [
 ];
 
 const teamActivity = [
-  { who: "System", what: "Sent 5am executive brief to nate@apexnetsys.com", time: "5:00 AM", color: C.blue },
+  { who: "System", what: "Sent 5am executive brief to you@yourcompany.com", time: "5:00 AM", color: C.blue },
   { who: "Sarah", what: "Moved Riverton Properties from Discovery to Quoted", time: "8:12 AM", color: C.green },
   { who: "System", what: "Auto-created follow-up task for EST-2148 after 13 quiet days", time: "8:40 AM", color: C.gold },
   { who: "Accounting", what: "Marked Harbor View invoice as escalated", time: "9:05 AM", color: C.red },
@@ -626,7 +637,7 @@ function BriefView() {
           <Panel style={{ padding: 18, background: "rgba(255,255,255,0.025)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 14, borderBottom: `1px solid ${C.stroke}` }}>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 700 }}>To: nate@apexnetsys.com</div>
+                <div style={{ fontSize: 15, fontWeight: 700 }}>To: you@yourcompany.com</div>
                 <div style={{ marginTop: 5, fontSize: 13, color: C.muted }}>Subject: Apex Daily Brief | Tuesday, April 7, 2026</div>
               </div>
               <Pill text="Delivered" color={C.green} bg={C.greenSoft} icon={Icons.check} />
