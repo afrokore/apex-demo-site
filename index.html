@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex Operations Automation Demo</title>
+<style>
+  :root {
+    --bg: #000000;
+    --bg-2: #080808;
+    --panel: rgba(12, 12, 12, 0.88);
+    --panel-strong: #0f0f0f;
+    --panel-soft: #161616;
+    --stroke: rgba(148, 163, 184, 0.14);
+    --text: #e5eefb;
+    --muted: #91a3bf;
+    --gold: #d8a93e;
+    --gold-soft: rgba(216, 169, 62, 0.16);
+    --blue: #47a0ff;
+    --blue-soft: rgba(71, 160, 255, 0.16);
+    --green: #2ec989;
+    --green-soft: rgba(46, 201, 137, 0.16);
+    --red: #ff6b67;
+    --red-soft: rgba(255, 107, 103, 0.14);
+    --amber: #ffb34d;
+    --amber-soft: rgba(255, 179, 77, 0.15);
+    --shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    --radius-lg: 28px;
+    --radius-md: 20px;
+    --radius-sm: 14px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(71, 160, 255, 0.10), transparent 30%),
+      radial-gradient(circle at top right, rgba(216, 169, 62, 0.09), transparent 24%),
+      #000000;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+    background-size: 34px 34px;
+    pointer-events: none;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0.5), transparent 90%);
+  }
+
+  button {
+    font: inherit;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.28);
+    border-radius: 999px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .hover-row:hover {
+    background: rgba(255, 255, 255, 0.025);
+  }
+
+  .fade-in {
+    animation: fadeInUp .45s ease both;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 980px) {
+    .app-shell {
+      display: block !important;
+    }
+
+    .sidebar {
+      position: static !important;
+      width: auto !important;
+      margin: 18px;
+      height: auto !important;
+    }
+
+    .main-content {
+      margin-left: 0 !important;
+      padding: 18px !important;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .hero-grid,
+    .kpi-grid,
+    .two-col,
+    .three-col,
+    .brief-grid,
+    .detail-grid,
+    .role-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .hide-mobile {
+      display: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const { useState } = React;
+
+const C = {
+  bg: "#000000",
+  bg2: "#080808",
+  panel: "rgba(12, 12, 12, 0.88)",
+  panelStrong: "#0f0f0f",
+  panelSoft: "#161616",
+  stroke: "rgba(148, 163, 184, 0.14)",
+  text: "#e5eefb",
+  muted: "#91a3bf",
+  gold: "#d8a93e",
+  goldSoft: "rgba(216, 169, 62, 0.16)",
+  blue: "#47a0ff",
+  blueSoft: "rgba(71, 160, 255, 0.16)",
+  green: "#2ec989",
+  greenSoft: "rgba(46, 201, 137, 0.16)",
+  red: "#ff6b67",
+  redSoft: "rgba(255, 107, 103, 0.14)",
+  amber: "#ffb34d",
+  amberSoft: "rgba(255, 179, 77, 0.15)",
+  white: "#ffffff",
+};
+
+const SvgIcon = ({ children, size = 18, color = C.muted, fill = "none" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+
+const Icons = {
+  dashboard: (props) => <SvgIcon {...props}><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></SvgIcon>,
+  brief: (props) => <SvgIcon {...props}><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><polyline points="14 2 14 7 19 7"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></SvgIcon>,
+  pipeline: (props) => <SvgIcon {...props}><rect x="3" y="5" width="5" height="14" rx="2"/><rect x="10" y="9" width="5" height="10" rx="2"/><rect x="17" y="3" width="4" height="16" rx="2"/></SvgIcon>,
+  finance: (props) => <SvgIcon {...props}><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></SvgIcon>,
+  automation: (props) => <SvgIcon {...props}><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.7 10.8l6.6-3.6"/><path d="M8.7 13.2l6.6 3.6"/></SvgIcon>,
+  access: (props) => <SvgIcon {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></SvgIcon>,
+  mail: (props) => <SvgIcon {...props}><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></SvgIcon>,
+  calendar: (props) => <SvgIcon {...props}><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></SvgIcon>,
+  flag: (props) => <SvgIcon {...props}><path d="M4 21V5"/><path d="M4 5c4-3 8 3 12 0v9c-4 3-8-3-12 0"/></SvgIcon>,
+  bell: (props) => <SvgIcon {...props}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></SvgIcon>,
+  check: (props) => <SvgIcon {...props}><path d="M20 6L9 17l-5-5"/></SvgIcon>,
+  alert: (props) => <SvgIcon {...props}><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></SvgIcon>,
+  clock: (props) => <SvgIcon {...props}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></SvgIcon>,
+  user: (props) => <SvgIcon {...props}><circle cx="12" cy="8" r="4"/><path d="M5 20a7 7 0 0 1 14 0"/></SvgIcon>,
+  spark: (props) => <SvgIcon {...props}><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/></SvgIcon>,
+  search: (props) => <SvgIcon {...props}><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.5" y2="16.5"/></SvgIcon>,
+  chevron: (props) => <SvgIcon {...props}><polyline points="9 18 15 12 9 6"/></SvgIcon>,
+};
+
+const navItems = [
+  { id: "overview", label: "Command Center", icon: Icons.dashboard },
+  { id: "brief", label: "Executive Brief", icon: Icons.brief },
+  { id: "pipeline", label: "Pipeline", icon: Icons.pipeline },
+  { id: "finance", label: "Estimates + Invoices", icon: Icons.finance },
+  { id: "automation", label: "Automation", icon: Icons.automation },
+  { id: "access", label: "Role Access", icon: Icons.access },
+];
+
+const summaryCards = [
+  { label: "Active Workstreams", value: "24", sub: "6 flagged this morning", color: C.blue, glow: C.blueSoft, icon: Icons.dashboard },
+  { label: "Open Estimates", value: "$186K", sub: "4 quotes aging past 10 days", color: C.gold, glow: C.goldSoft, icon: Icons.pipeline },
+  { label: "Outstanding Invoices", value: "$94.2K", sub: "2 accounts at risk", color: C.red, glow: C.redSoft, icon: Icons.finance },
+  { label: "Automations Fired", value: "31", sub: "follow-ups, handoffs, escalations", color: C.green, glow: C.greenSoft, icon: Icons.automation },
+];
+
+const pipelineStages = [
+  { name: "Discovery", count: 5, value: "$142K", accent: C.blue, items: ["Pacific Dental rollout", "Riverton HOA camera refresh", "Lido Cafe network upgrade"] },
+  { name: "Quoted", count: 8, value: "$186K", accent: C.gold, items: ["4 estimates need follow-up", "2 approvals waiting on owner", "1 quote auto-escalated"] },
+  { name: "Scheduled", count: 6, value: "$228K", accent: C.green, items: ["Install crews assigned", "Dependencies mapped", "2 kickoff meetings today"] },
+  { name: "At Risk", count: 3, value: "$91K", accent: C.red, items: ["Permit delay", "Client approval blocked", "Vendor ETA slipped 5 days"] },
+];
+
+const estimates = [
+  { client: "Coastal Eats Group", estimate: "#EST-2148", age: "13 days", status: "Quiet", owner: "Nate", next: "Auto follow-up sent today", tone: "warn" },
+  { client: "Riverton Properties", estimate: "#EST-2144", age: "4 days", status: "Warm", owner: "Sarah", next: "Call scheduled for 2:00 PM", tone: "good" },
+  { client: "Bayline Medical", estimate: "#EST-2139", age: "18 days", status: "At Risk", owner: "Nate", next: "Escalate to owner tomorrow", tone: "bad" },
+  { client: "Northgate Retail", estimate: "#EST-2137", age: "9 days", status: "Needs Follow-Up", owner: "Jess", next: "Reminder queued at 3:30 PM", tone: "warn" },
+];
+
+const invoices = [
+  { client: "Harbor View Apartments", invoice: "#INV-1083", amount: "$18,400", due: "12 days overdue", status: "Escalated", owner: "Accounting", tone: "bad" },
+  { client: "Pacific Health Partners", invoice: "#INV-1088", amount: "$9,250", due: "Due today", status: "Watching", owner: "Accounting", tone: "warn" },
+  { client: "Urban Thread Co.", invoice: "#INV-1080", amount: "$24,860", due: "Current", status: "Healthy", owner: "System", tone: "good" },
+  { client: "West Coast Logistics", invoice: "#INV-1074", amount: "$41,690", due: "7 days overdue", status: "Follow-Up Sent", owner: "System", tone: "warn" },
+];
+
+const automationFlows = [
+  {
+    title: "Estimate Silence Recovery",
+    description: "If an estimate sits untouched for 7 days, the system sends a follow-up, creates an owner task, and escalates at day 14.",
+    metric: "4 currently active",
+    color: C.gold,
+    bg: C.goldSoft,
+  },
+  {
+    title: "Invoice Risk Monitor",
+    description: "Outstanding invoices are scored for age, balance, and response history so cash flow issues surface before they become surprises.",
+    metric: "$52K in monitored risk",
+    color: C.red,
+    bg: C.redSoft,
+  },
+  {
+    title: "Project Stage Automation",
+    description: "Projects move from quoted to scheduled when approvals, deposits, and dependencies are all complete. No silent stalls.",
+    metric: "11 stage moves this week",
+    color: C.green,
+    bg: C.greenSoft,
+  },
+  {
+    title: "Morning Executive Brief",
+    description: "Gmail + Google Calendar activity rolls into a 5am owner summary with completions, blockers, quiet estimates, and decisions needed.",
+    metric: "Delivered weekdays at 5:00 AM",
+    color: C.blue,
+    bg: C.blueSoft,
+  },
+];
+
+const roleViews = [
+  {
+    role: "Owner",
+    summary: "Sees the whole operation, financial exposure, stalled work, and what needs a decision today.",
+    visible: ["Executive brief", "Pipeline value", "Invoice risk", "Escalation queue", "Team activity"],
+    badge: { text: "Full visibility", color: C.blue, bg: C.blueSoft },
+  },
+  {
+    role: "Manager",
+    summary: "Sees team workload, project blockers, due dates, and the part of the business they directly run.",
+    visible: ["Assigned jobs", "Crew workload", "Open approvals", "Follow-up queue"],
+    badge: { text: "Scoped operations", color: C.gold, bg: C.goldSoft },
+  },
+  {
+    role: "Staff",
+    summary: "Sees only the tasks, due dates, and next steps relevant to them so execution stays focused.",
+    visible: ["My tasks", "Due today", "Client notes", "Completion updates"],
+    badge: { text: "Task-only view", color: C.green, bg: C.greenSoft },
+  },
+];
+
+const briefFeed = [
+  { type: "Complete", text: "Warehouse Automation Pilot closed after final walkthrough and signoff.", time: "Yesterday", color: C.green, bg: C.greenSoft, icon: Icons.check },
+  { type: "Attention", text: "4 estimates have gone quiet. Coastal Eats and Bayline Medical need owner follow-up.", time: "5:00 AM brief", color: C.gold, bg: C.goldSoft, icon: Icons.alert },
+  { type: "Risk", text: "Harbor View invoice is 12 days overdue and now impacts this week's cash collection target.", time: "Escalated", color: C.red, bg: C.redSoft, icon: Icons.flag },
+  { type: "Decision", text: "Approve revised scope for Westside Office mezzanine addition before 11:00 AM kickoff.", time: "Calendar-linked", color: C.blue, bg: C.blueSoft, icon: Icons.spark },
+];
+
+const teamActivity = [
+  { who: "System", what: "Sent 5am executive brief to nate@apexnetsys.com", time: "5:00 AM", color: C.blue },
+  { who: "Sarah", what: "Moved Riverton Properties from Discovery to Quoted", time: "8:12 AM", color: C.green },
+  { who: "System", what: "Auto-created follow-up task for EST-2148 after 13 quiet days", time: "8:40 AM", color: C.gold },
+  { who: "Accounting", what: "Marked Harbor View invoice as escalated", time: "9:05 AM", color: C.red },
+];
+
+const ownerQueue = [
+  { label: "Need your decision", value: "2", note: "scope approvals before noon", color: C.blue },
+  { label: "Jobs at risk", value: "3", note: "timeline or response issue", color: C.red },
+  { label: "Quiet estimates", value: "4", note: "aged beyond follow-up threshold", color: C.gold },
+  { label: "Crew handoffs today", value: "6", note: "calendar-linked transitions", color: C.green },
+];
+
+const toneMap = {
+  good: { color: C.green, bg: C.greenSoft },
+  warn: { color: C.gold, bg: C.goldSoft },
+  bad: { color: C.red, bg: C.redSoft },
+};
+
+const shellStyle = {
+  minHeight: "100vh",
+};
+
+const sidebarStyle = {
+  position: "fixed",
+  top: 18,
+  left: 18,
+  bottom: 18,
+  width: 250,
+  padding: 14,
+  borderRadius: 30,
+  background: "linear-gradient(180deg, rgba(6, 6, 6, 0.98) 0%, rgba(10, 10, 10, 0.96) 100%)",
+  border: `1px solid ${C.stroke}`,
+  boxShadow: "0 30px 80px rgba(0, 0, 0, 0.4)",
+  display: "flex",
+  flexDirection: "column",
+  gap: 10,
+};
+
+const mainStyle = {
+  marginLeft: 286,
+  width: "calc(100vw - 308px)",
+  padding: "22px 22px 32px",
+};
+
+function IconBadge({ icon: Icon, color, bg, size = 18 }) {
+  return (
+    <div style={{ width: 38, height: 38, borderRadius: 12, background: bg, display: "grid", placeItems: "center", border: `1px solid ${color}33` }}>
+      <Icon size={size} color={color} />
+    </div>
+  );
+}
+
+function Pill({ text, color, bg, icon: Icon }) {
+  return (
+    <span className="pill" style={{ color, background: bg, border: `1px solid ${color}22` }}>
+      {Icon ? <Icon size={14} color={color} /> : null}
+      {text}
+    </span>
+  );
+}
+
+function Panel({ children, style, className = "" }) {
+  return <div className={`panel ${className}`.trim()} style={style}>{children}</div>;
+}
+
+function SectionTitle({ eyebrow, title, description, right }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 20, flexWrap: "wrap", marginBottom: 18 }}>
+      <div>
+        {eyebrow ? <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.18em", color: C.gold, marginBottom: 8, fontWeight: 700 }}>{eyebrow}</div> : null}
+        <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.03em", color: C.text }}>{title}</div>
+        {description ? <div style={{ fontSize: 14, color: C.muted, marginTop: 8, maxWidth: 760, lineHeight: 1.5 }}>{description}</div> : null}
+      </div>
+      {right}
+    </div>
+  );
+}
+
+function SummaryCard({ card }) {
+  const Icon = card.icon;
+  return (
+    <Panel className="fade-in" style={{ padding: 20, minHeight: 138, position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: "auto -20px -28px auto", width: 110, height: 110, borderRadius: "50%", background: card.glow, filter: "blur(20px)" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, position: "relative" }}>
+        <div>
+          <div style={{ fontSize: 12, color: C.muted, textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 700 }}>{card.label}</div>
+          <div style={{ marginTop: 12, fontSize: 34, fontWeight: 750, letterSpacing: "-0.05em" }}>{card.value}</div>
+          <div style={{ marginTop: 8, fontSize: 13, color: card.color }}>{card.sub}</div>
+        </div>
+        <IconBadge icon={Icon} color={card.color} bg={card.glow} size={20} />
+      </div>
+    </Panel>
+  );
+}
+
+function QueueCard({ item }) {
+  return (
+    <div style={{ padding: 16, borderRadius: 18, background: "rgba(255,255,255,0.03)", border: `1px solid ${item.color}33` }}>
+      <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 700 }}>{item.label}</div>
+      <div style={{ fontSize: 32, fontWeight: 750, marginTop: 10, color: item.color }}>{item.value}</div>
+      <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>{item.note}</div>
+    </div>
+  );
+}
+
+function ProgressStage({ stage }) {
+  return (
+    <div style={{ padding: 18, borderRadius: 20, background: "rgba(255,255,255,0.025)", border: `1px solid ${stage.accent}33` }}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+        <div>
+          <div style={{ fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: C.muted, fontWeight: 700 }}>{stage.name}</div>
+          <div style={{ marginTop: 8, fontSize: 28, fontWeight: 750, color: stage.accent }}>{stage.count}</div>
+          <div style={{ marginTop: 4, fontSize: 13, color: C.text }}>{stage.value}</div>
+        </div>
+        <div style={{ width: 10, alignSelf: "stretch", borderRadius: 999, background: `${stage.accent}26` }}>
+          <div style={{ height: `${Math.min(stage.count * 12, 100)}%`, borderRadius: 999, background: stage.accent }} />
+        </div>
+      </div>
+      <div style={{ marginTop: 16, display: "grid", gap: 8 }}>
+        {stage.items.map((item, index) => (
+          <div key={index} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: stage.accent, flexShrink: 0 }} />
+            <span>{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StatusPill({ tone, children }) {
+  const styles = toneMap[tone];
+  return <span style={{ display: "inline-flex", padding: "6px 10px", borderRadius: 999, background: styles.bg, color: styles.color, fontSize: 12, fontWeight: 700 }}>{children}</span>;
+}
+
+function DataTable({ columns, rows }) {
+  return (
+    <div style={{ overflowX: "auto" }}>
+      <table>
+        <thead>
+          <tr style={{ borderBottom: `1px solid ${C.stroke}` }}>
+            {columns.map((col) => (
+              <th key={col.key} style={{ textAlign: "left", padding: "0 0 14px", fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", color: C.muted, fontWeight: 700 }}>
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr key={rowIndex} className="hover-row" style={{ borderBottom: rowIndex === rows.length - 1 ? "none" : `1px solid rgba(148, 163, 184, 0.08)` }}>
+              {columns.map((col) => (
+                <td key={col.key} style={{ padding: "16px 0", fontSize: 14, color: col.muted ? C.muted : C.text, verticalAlign: "top" }}>
+                  {col.render ? col.render(row[col.key], row) : row[col.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function OverviewView() {
+  return (
+    <div style={{ display: "grid", gap: 22 }}>
+      <Panel className="fade-in" style={{ padding: 26, overflow: "hidden", position: "relative" }}>
+        <div style={{ position: "absolute", right: -60, top: -40, width: 220, height: 220, borderRadius: "50%", background: C.blueSoft, filter: "blur(30px)" }} />
+        <div style={{ position: "absolute", right: 120, bottom: -70, width: 180, height: 180, borderRadius: "50%", background: C.goldSoft, filter: "blur(28px)" }} />
+        <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 22, position: "relative" }}>
+          <div>
+            <Pill text="Apex Operations Automation Pilot" color={C.gold} bg={C.goldSoft} icon={Icons.spark} />
+            <div style={{ fontSize: 44, lineHeight: 1.02, letterSpacing: "-0.06em", fontWeight: 780, marginTop: 18, maxWidth: 720 }}>
+              One command center for pipeline, estimates, invoices, team activity, and the 5am owner brief.
+            </div>
+            <div style={{ marginTop: 14, maxWidth: 700, color: C.muted, fontSize: 15, lineHeight: 1.65 }}>
+              Built from the same founder workflow Nate uses to run Apex. Gmail and Google Calendar activity roll into a daily executive summary, while automations keep pipeline movement, quote follow-up, invoice risk, and handoffs from stalling silently.
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 22 }}>
+              <Pill text="Daily executive brief" color={C.blue} bg={C.blueSoft} icon={Icons.mail} />
+              <Pill text="Pipeline tracking" color={C.green} bg={C.greenSoft} icon={Icons.pipeline} />
+              <Pill text="Estimate aging" color={C.gold} bg={C.goldSoft} icon={Icons.clock} />
+              <Pill text="Invoice escalation" color={C.red} bg={C.redSoft} icon={Icons.flag} />
+            </div>
+          </div>
+          <Panel style={{ padding: 20, background: "linear-gradient(180deg, rgba(16, 16, 16, 0.92), rgba(8, 8, 8, 0.92))", alignSelf: "stretch" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 12, color: C.muted, textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 700 }}>5:00 AM Delivery</div>
+                <div style={{ fontSize: 22, fontWeight: 740, marginTop: 10 }}>Daily Executive Brief</div>
+              </div>
+              <IconBadge icon={Icons.mail} color={C.blue} bg={C.blueSoft} />
+            </div>
+            <div style={{ marginTop: 18, display: "grid", gap: 10 }}>
+              {briefFeed.map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <div key={index} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, alignItems: "flex-start", padding: 12, borderRadius: 16, background: "rgba(255,255,255,0.03)", border: `1px solid ${item.color}22` }}>
+                    <IconBadge icon={Icon} color={item.color} bg={item.bg} size={16} />
+                    <div>
+                      <div style={{ fontSize: 13, lineHeight: 1.45 }}>{item.text}</div>
+                      <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{item.time}</div>
+                    </div>
+                    <StatusPill tone={item.type === "Risk" ? "bad" : item.type === "Attention" ? "warn" : item.type === "Complete" ? "good" : "good"}>{item.type}</StatusPill>
+                  </div>
+                );
+              })}
+            </div>
+          </Panel>
+        </div>
+      </Panel>
+
+      <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16 }}>
+        {summaryCards.map((card) => <SummaryCard key={card.label} card={card} />)}
+      </div>
+
+      <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 18 }}>
+        <Panel className="fade-in" style={{ padding: 22 }}>
+          <SectionTitle
+            eyebrow="Owner View"
+            title="What needs your attention today"
+            description="The dashboard brings open work, flags, financial exposure, and team movement into one place so the owner leads instead of chasing."
+          />
+          <div className="three-col" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
+            {ownerQueue.map((item) => <QueueCard key={item.label} item={item} />)}
+          </div>
+          <div style={{ marginTop: 18, display: "grid", gap: 12 }}>
+            {teamActivity.map((entry, index) => (
+              <div key={index} style={{ display: "grid", gridTemplateColumns: "10px 1fr auto", gap: 12, alignItems: "center", padding: 14, borderRadius: 18, background: "rgba(255,255,255,0.025)" }}>
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: entry.color, boxShadow: `0 0 0 8px ${entry.color}16` }} />
+                <div>
+                  <span style={{ fontWeight: 700 }}>{entry.who}</span>
+                  <span style={{ color: C.muted }}> {entry.what}</span>
+                </div>
+                <div style={{ fontSize: 12, color: C.muted }}>{entry.time}</div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel className="fade-in" style={{ padding: 22 }}>
+          <SectionTitle
+            eyebrow="Live Integrations"
+            title="Inputs the system reads"
+            description="Founder story, surfaced visually: Apex reads Gmail and Google Calendar, then turns communication into operating visibility."
+          />
+          <div style={{ display: "grid", gap: 14 }}>
+            {[
+              { title: "Gmail", note: "Unread estimate replies, invoice responses, client approvals", icon: Icons.mail, color: C.blue, bg: C.blueSoft },
+              { title: "Google Calendar", note: "Kickoffs, walkthroughs, owner decisions, scheduled handoffs", icon: Icons.calendar, color: C.green, bg: C.greenSoft },
+              { title: "Automation Engine", note: "Follow-ups, escalations, reminders, next-step task creation", icon: Icons.automation, color: C.gold, bg: C.goldSoft },
+            ].map((item) => (
+              <div key={item.title} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, alignItems: "center", padding: 14, borderRadius: 18, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.color}22` }}>
+                <IconBadge icon={item.icon} color={item.color} bg={item.bg} />
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15 }}>{item.title}</div>
+                  <div style={{ marginTop: 4, fontSize: 13, color: C.muted, lineHeight: 1.45 }}>{item.note}</div>
+                </div>
+                <Pill text="Connected" color={item.color} bg={item.bg} />
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+function BriefView() {
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <Panel style={{ padding: 24 }}>
+        <SectionTitle
+          eyebrow="Inbox Delivery"
+          title="Daily Executive Brief"
+          description="Designed as the no-login-required owner touchpoint. It lands every weekday morning and gives decisions, risk, movement, and quiet revenue opportunities in one read."
+          right={<Pill text="Weekdays at 5:00 AM" color={C.blue} bg={C.blueSoft} icon={Icons.clock} />}
+        />
+        <div className="brief-grid" style={{ display: "grid", gridTemplateColumns: "1.2fr 0.85fr", gap: 18 }}>
+          <Panel style={{ padding: 18, background: "rgba(255,255,255,0.025)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 14, borderBottom: `1px solid ${C.stroke}` }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700 }}>To: nate@apexnetsys.com</div>
+                <div style={{ marginTop: 5, fontSize: 13, color: C.muted }}>Subject: Apex Daily Brief | Tuesday, April 7, 2026</div>
+              </div>
+              <Pill text="Delivered" color={C.green} bg={C.greenSoft} icon={Icons.check} />
+            </div>
+            <div style={{ display: "grid", gap: 14, marginTop: 16 }}>
+              <div style={{ padding: 16, borderRadius: 18, background: C.blueSoft }}>
+                <div style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.16em", color: C.blue, fontWeight: 700 }}>Today at a glance</div>
+                <div style={{ marginTop: 10, fontSize: 15, color: C.text, lineHeight: 1.6 }}>
+                  3 jobs progressed yesterday, 4 estimates need follow-up, 2 invoices need intervention, and 2 decisions are tied to calendar events before noon.
+                </div>
+              </div>
+              {briefFeed.map((item, index) => {
+                const Icon = item.icon;
+                return (
+                  <div key={index} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, alignItems: "flex-start", padding: 14, borderRadius: 16, border: `1px solid ${item.color}22`, background: "rgba(255,255,255,0.02)" }}>
+                    <IconBadge icon={Icon} color={item.color} bg={item.bg} size={16} />
+                    <div>
+                      <div style={{ fontSize: 14, lineHeight: 1.5 }}>{item.text}</div>
+                      <div style={{ marginTop: 4, color: C.muted, fontSize: 12 }}>{item.time}</div>
+                    </div>
+                    <StatusPill tone={item.type === "Risk" ? "bad" : item.type === "Attention" ? "warn" : "good"}>{item.type}</StatusPill>
+                  </div>
+                );
+              })}
+            </div>
+          </Panel>
+          <div style={{ display: "grid", gap: 16 }}>
+            <Panel style={{ padding: 18 }}>
+              <div style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: C.muted, fontWeight: 700 }}>Why this matters</div>
+              <div style={{ fontSize: 26, lineHeight: 1.12, letterSpacing: "-0.04em", fontWeight: 760, marginTop: 12 }}>
+                Most dashboards wait for the owner to remember to check them.
+              </div>
+              <div style={{ marginTop: 12, fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
+                This one comes to you. That message is repeated throughout the campaign, so the mockup makes the email itself a hero artifact.
+              </div>
+            </Panel>
+            <Panel style={{ padding: 18 }}>
+              <div style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: C.muted, fontWeight: 700 }}>Brief includes</div>
+              <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+                {[
+                  "What moved forward yesterday",
+                  "What is stalled and why",
+                  "Open estimates and how long they've been out",
+                  "Outstanding and overdue invoices",
+                  "Projects that need to advance stages",
+                  "What needs a decision from the owner today",
+                ].map((item) => (
+                  <div key={item} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: C.text }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.gold, flexShrink: 0 }} />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </Panel>
+          </div>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+function PipelineView() {
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <Panel style={{ padding: 24 }}>
+        <SectionTitle
+          eyebrow="Pipeline Tracking"
+          title="Projects move through stages automatically"
+          description="The campaign promise is that nothing stalls silently. This view shows stage counts, value, and the reasons work might stop moving."
+        />
+        <div className="three-col" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16 }}>
+          {pipelineStages.map((stage) => <ProgressStage key={stage.name} stage={stage} />)}
+        </div>
+      </Panel>
+
+      <Panel style={{ padding: 22 }}>
+        <SectionTitle
+          eyebrow="Open Work"
+          title="Cross-functional operations view"
+          description="Every open project, active task, and flag appears here so owners and managers stop piecing status together from calls, texts, and memory."
+        />
+        <DataTable
+          columns={[
+            { key: "project", label: "Project" },
+            { key: "client", label: "Client", muted: true },
+            { key: "stage", label: "Stage", render: (value, row) => <StatusPill tone={row.tone}>{value}</StatusPill> },
+            { key: "blocker", label: "Blocker" },
+            { key: "next", label: "Next Move", muted: true },
+          ]}
+          rows={[
+            { project: "Harbor View Security Upgrade", client: "Harbor View Apartments", stage: "At Risk", blocker: "Client approval on camera placement", next: "Auto-escalate owner if no reply by 2 PM", tone: "bad" },
+            { project: "Riverton Camera Refresh", client: "Riverton Properties", stage: "Quoted", blocker: "Waiting on decision", next: "Owner call scheduled at 2 PM", tone: "warn" },
+            { project: "Westside Office Buildout", client: "Meridian Properties", stage: "Scheduled", blocker: "Scope revision pending signature", next: "Calendar-linked kickoff after signoff", tone: "good" },
+            { project: "Warehouse Automation Pilot", client: "West Coast Logistics", stage: "Completed", blocker: "None", next: "Archive and trigger testimonial outreach", tone: "good" },
+          ]}
+        />
+      </Panel>
+    </div>
+  );
+}
+
+function FinanceView() {
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+        <Panel style={{ padding: 22 }}>
+          <SectionTitle
+            eyebrow="Estimate Tracking"
+            title="See every open estimate and how long it has been out"
+            description="Quiet quotes are surfaced before the job is lost. Follow-ups can fire automatically, and owners see which opportunities are cooling."
+          />
+          <DataTable
+            columns={[
+              { key: "client", label: "Client" },
+              { key: "estimate", label: "Estimate", muted: true },
+              { key: "age", label: "Age" },
+              { key: "status", label: "Status", render: (value, row) => <StatusPill tone={row.tone}>{value}</StatusPill> },
+              { key: "next", label: "Next Action", muted: true },
+            ]}
+            rows={estimates}
+          />
+        </Panel>
+
+        <Panel style={{ padding: 22 }}>
+          <SectionTitle
+            eyebrow="Invoice Tracking"
+            title="Outstanding, overdue, and at-risk invoices"
+            description="Cash flow problems should not arrive as surprises. This surface makes balance exposure and escalation status visible at a glance."
+          />
+          <DataTable
+            columns={[
+              { key: "client", label: "Client" },
+              { key: "invoice", label: "Invoice", muted: true },
+              { key: "amount", label: "Amount" },
+              { key: "due", label: "Age" },
+              { key: "status", label: "Status", render: (value, row) => <StatusPill tone={row.tone}>{value}</StatusPill> },
+            ]}
+            rows={invoices}
+          />
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+function AutomationView() {
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <Panel style={{ padding: 24 }}>
+        <SectionTitle
+          eyebrow="Workflow Automation"
+          title="Follow-ups, escalations, and handoffs trigger without manual chasing"
+          description="This is the operational engine behind the campaign. The mockup makes automation visible so prospects understand the dashboard is tied to action, not just reporting."
+        />
+        <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {automationFlows.map((flow) => (
+            <div key={flow.title} style={{ padding: 18, borderRadius: 22, background: "rgba(255,255,255,0.025)", border: `1px solid ${flow.color}22` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+                <div style={{ fontSize: 19, fontWeight: 730 }}>{flow.title}</div>
+                <Pill text={flow.metric} color={flow.color} bg={flow.bg} />
+              </div>
+              <div style={{ marginTop: 12, color: C.muted, fontSize: 14, lineHeight: 1.6 }}>{flow.description}</div>
+              <div style={{ marginTop: 16, height: 10, borderRadius: 999, background: `${flow.color}22`, overflow: "hidden" }}>
+                <div style={{ width: flow.title === "Morning Executive Brief" ? "100%" : flow.title === "Project Stage Automation" ? "78%" : flow.title === "Estimate Silence Recovery" ? "64%" : "72%", height: "100%", borderRadius: 999, background: flow.color }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel style={{ padding: 22 }}>
+        <SectionTitle
+          eyebrow="Automation Logic"
+          title="One example sequence"
+          description="This is especially useful for the reel and sales conversations because it turns the abstract promise into something concrete."
+        />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
+          {[
+            { title: "Day 0", body: "Estimate goes out", color: C.blue },
+            { title: "Day 7", body: "System sends follow-up and reminds owner", color: C.gold },
+            { title: "Day 14", body: "Quote marked quiet and escalated", color: C.red },
+            { title: "Next brief", body: "Owner sees it in the 5am summary", color: C.green },
+          ].map((step, index) => (
+            <div key={step.title} style={{ position: "relative", padding: 18, borderRadius: 18, background: "rgba(255,255,255,0.025)", border: `1px solid ${step.color}22` }}>
+              <div style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: step.color, fontWeight: 700 }}>{step.title}</div>
+              <div style={{ marginTop: 10, lineHeight: 1.45, fontSize: 15 }}>{step.body}</div>
+              {index < 3 ? <div className="hide-mobile" style={{ position: "absolute", top: "50%", right: -8, transform: "translateY(-50%)" }}><Icons.chevron size={16} color={C.muted} /></div> : null}
+            </div>
+          ))}
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+function AccessView() {
+  return (
+    <div style={{ display: "grid", gap: 20 }}>
+      <Panel style={{ padding: 24 }}>
+        <SectionTitle
+          eyebrow="Role-Based Access"
+          title="Owners see everything, managers see their scope, staff sees their tasks"
+          description="This feature is promised directly in the content pack, so the mockup calls it out with clear audience-specific views."
+        />
+        <div className="role-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
+          {roleViews.map((role) => (
+            <div key={role.role} style={{ padding: 20, borderRadius: 22, background: "rgba(255,255,255,0.025)", border: `1px solid ${role.badge.color}22` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 24, fontWeight: 740 }}>{role.role}</div>
+                  <div style={{ marginTop: 10, color: C.muted, lineHeight: 1.55, fontSize: 14 }}>{role.summary}</div>
+                </div>
+                <Pill text={role.badge.text} color={role.badge.color} bg={role.badge.bg} />
+              </div>
+              <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
+                {role.visible.map((item) => (
+                  <div key={item} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: role.badge.color, flexShrink: 0 }} />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 18 }}>
+        <Panel style={{ padding: 22 }}>
+          <SectionTitle
+            eyebrow="Manager Snapshot"
+            title="Example scoped view"
+            description="Managers do not need the owner's full financial picture. They need blockers, assignments, and what must move today."
+          />
+          <DataTable
+            columns={[
+              { key: "task", label: "Task" },
+              { key: "assignee", label: "Assignee", muted: true },
+              { key: "due", label: "Due" },
+              { key: "status", label: "Status", render: (value, row) => <StatusPill tone={row.tone}>{value}</StatusPill> },
+            ]}
+            rows={[
+              { task: "Confirm permit follow-up", assignee: "Sarah", due: "Today", status: "Open", tone: "warn" },
+              { task: "Crew handoff for Westside kickoff", assignee: "Mike", due: "10:30 AM", status: "Ready", tone: "good" },
+              { task: "Client approval on Harbor View map", assignee: "Nate", due: "Past due", status: "Blocked", tone: "bad" },
+              { task: "Sync Coastal Eats install date", assignee: "Jess", due: "2:00 PM", status: "In Motion", tone: "good" },
+            ]}
+          />
+        </Panel>
+        <Panel style={{ padding: 22 }}>
+          <SectionTitle
+            eyebrow="Staff View"
+            title="Task-only clarity"
+            description="The staff experience keeps execution focused by showing what to do next, not the whole business."
+          />
+          <div style={{ display: "grid", gap: 12 }}>
+            {[
+              { task: "Install exterior cameras (6)", due: "Today", color: C.green },
+              { task: "Upload site photos to project record", due: "Today", color: C.blue },
+              { task: "Confirm equipment delivery window", due: "Tomorrow", color: C.gold },
+              { task: "Await owner-approved camera map", due: "Blocked", color: C.red },
+            ].map((item) => (
+              <div key={item.task} style={{ padding: 14, borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.color}22`, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+                <div style={{ fontSize: 14 }}>{item.task}</div>
+                <div style={{ fontSize: 12, color: item.color, fontWeight: 700 }}>{item.due}</div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [view, setView] = useState("overview");
+
+  const titles = {
+    overview: {
+      title: "Apex Operations Automation",
+      description: "Interactive campaign demo modeled as a premium operations command center.",
+    },
+    brief: {
+      title: "Daily Executive Brief",
+      description: "No-login owner summary delivered via email every weekday morning.",
+    },
+    pipeline: {
+      title: "Pipeline Visibility",
+      description: "Track stage movement automatically and catch silent stalls early.",
+    },
+    finance: {
+      title: "Estimates + Invoices",
+      description: "Surface open revenue, quiet quotes, overdue balances, and risk.",
+    },
+    automation: {
+      title: "Workflow Automation",
+      description: "Follow-ups, escalations, reminders, and handoffs move without manual chasing.",
+    },
+    access: {
+      title: "Role-Based Access",
+      description: "Owners, managers, and staff each see the right level of visibility.",
+    },
+  };
+
+  return (
+    <div className="app-shell" style={shellStyle}>
+      <aside className="sidebar" style={sidebarStyle}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 12, background: "linear-gradient(135deg, rgba(216,169,62,0.24), rgba(71,160,255,0.2))", display: "grid", placeItems: "center", border: `1px solid ${C.stroke}` }}>
+              <span style={{ fontSize: 22, fontWeight: 800, color: C.gold }}>A</span>
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.05em" }}>APEX</div>
+              <div style={{ marginTop: 1, fontSize: 9, letterSpacing: "0.24em", color: C.muted, textTransform: "uppercase" }}>Network Systems</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 8, color: C.muted, fontSize: 11.5, lineHeight: 1.42 }}>
+            Founder-built operations system for business owners who are tired of chasing status.
+          </div>
+        </div>
+
+        <Panel style={{ padding: 12, background: "rgba(255,255,255,0.03)" }}>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.16em", color: C.gold, fontWeight: 700 }}>Campaign Demo</div>
+          <div style={{ fontSize: 20, fontWeight: 760, marginTop: 8 }}>5:00 AM</div>
+          <div style={{ marginTop: 3, fontSize: 12, color: C.muted }}>Executive brief delivery time</div>
+          <div style={{ marginTop: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <Pill text="Gmail" color={C.blue} bg={C.blueSoft} icon={Icons.mail} />
+            <Pill text="Calendar" color={C.green} bg={C.greenSoft} icon={Icons.calendar} />
+          </div>
+        </Panel>
+
+        <div style={{ display: "grid", gap: 3 }}>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = item.id === view;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setView(item.id)}
+                style={{
+                  background: active ? "linear-gradient(90deg, rgba(216,169,62,0.18), rgba(71,160,255,0.14))" : "transparent",
+                  color: active ? C.text : C.muted,
+                  border: active ? `1px solid rgba(216,169,62,0.22)` : "1px solid transparent",
+                  borderRadius: 15,
+                  padding: "9px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  width: "100%",
+                  minWidth: 0,
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "all .2s ease",
+                }}
+              >
+                <Icon size={16} color={active ? C.gold : C.muted} />
+                <span style={{ fontSize: 13.5, fontWeight: active ? 700 : 600, flex: 1, minWidth: 0, overflowWrap: "anywhere", lineHeight: 1.2 }}>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ marginTop: 2 }}>
+          <Panel style={{ padding: 12, background: "rgba(255,255,255,0.03)" }}>
+            <div style={{ fontSize: 11.5, color: C.muted }}>Logged in as</div>
+            <div style={{ marginTop: 5, display: "flex", alignItems: "center", gap: 9 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 10, background: C.blueSoft, display: "grid", placeItems: "center" }}>
+                <Icons.user size={16} color={C.blue} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13.5 }}>Nate</div>
+                <div style={{ fontSize: 11.5, color: C.muted }}>Owner view</div>
+              </div>
+            </div>
+          </Panel>
+        </div>
+      </aside>
+
+      <main className="main-content" style={mainStyle}>
+        <div style={{ display: "grid", gap: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ fontSize: 34, fontWeight: 780, letterSpacing: "-0.06em" }}>{titles[view].title}</div>
+              <div style={{ marginTop: 8, color: C.muted, fontSize: 14, lineHeight: 1.55 }}>{titles[view].description}</div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <Pill text="Interactive mockup" color={C.gold} bg={C.goldSoft} icon={Icons.spark} />
+              <Pill text="For demos only" color={C.blue} bg={C.blueSoft} icon={Icons.brief} />
+            </div>
+          </div>
+
+          {view === "overview" ? <OverviewView /> : null}
+          {view === "brief" ? <BriefView /> : null}
+          {view === "pipeline" ? <PipelineView /> : null}
+          {view === "finance" ? <FinanceView /> : null}
+          {view === "automation" ? <AutomationView /> : null}
+          {view === "access" ? <AccessView /> : null}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+</script>
+</body>
+</html>
