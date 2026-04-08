@@ -261,8 +261,8 @@ const navItems = [
   { id: "brief", label: "Executive Brief", icon: Icons.brief },
   { id: "pipeline", label: "Pipeline", icon: Icons.pipeline },
   { id: "finance", label: "Estimates + Invoices", icon: Icons.finance },
-  { id: "automation", label: "Automation", icon: Icons.automation },
-  { id: "access", label: "Role Access", icon: Icons.access },
+  { id: "tasks", label: "Action Queue", icon: Icons.check },
+  { id: "calendar", label: "Calendar", icon: Icons.calendar },
 ];
 
 const summaryCards = [
@@ -293,56 +293,66 @@ const invoices = [
   { client: "West Coast Logistics", invoice: "#INV-1074", amount: "$41,690", due: "7 days overdue", status: "Follow-Up Sent", owner: "System", tone: "warn" },
 ];
 
-const automationFlows = [
-  {
-    title: "Estimate Silence Recovery",
-    description: "If an estimate sits untouched for 7 days, the system sends a follow-up, creates an owner task, and escalates at day 14.",
-    metric: "4 currently active",
-    color: C.gold,
-    bg: C.goldSoft,
-  },
-  {
-    title: "Invoice Risk Monitor",
-    description: "Outstanding invoices are scored for age, balance, and response history so cash flow issues surface before they become surprises.",
-    metric: "$52K in monitored risk",
-    color: C.red,
-    bg: C.redSoft,
-  },
-  {
-    title: "Project Stage Automation",
-    description: "Projects move from quoted to scheduled when approvals, deposits, and dependencies are all complete. No silent stalls.",
-    metric: "11 stage moves this week",
-    color: C.green,
-    bg: C.greenSoft,
-  },
-  {
-    title: "Morning Executive Brief",
-    description: "Gmail + Google Calendar activity rolls into a 5am owner summary with completions, blockers, quiet estimates, and decisions needed.",
-    metric: "Delivered weekdays at 5:00 AM",
-    color: C.blue,
-    bg: C.blueSoft,
-  },
+const pipelinePressure = [
+  { label: "Proposal Sent", value: "8", sub: "$186K in open quotes", color: C.gold },
+  { label: "At Risk / Stalled", value: "3", sub: "timeline or approval issue", color: C.red },
+  { label: "Ready to Invoice", value: "2", sub: "$65K ready to bill", color: C.blue },
 ];
 
-const roleViews = [
-  {
-    role: "Owner",
-    summary: "Sees the whole operation, financial exposure, stalled work, and what needs a decision today.",
-    visible: ["Executive brief", "Pipeline value", "Invoice risk", "Escalation queue", "Team activity"],
-    badge: { text: "Full visibility", color: C.blue, bg: C.blueSoft },
-  },
-  {
-    role: "Manager",
-    summary: "Sees team workload, project blockers, due dates, and the part of the business they directly run.",
-    visible: ["Assigned jobs", "Crew workload", "Open approvals", "Follow-up queue"],
-    badge: { text: "Scoped operations", color: C.gold, bg: C.goldSoft },
-  },
-  {
-    role: "Staff",
-    summary: "Sees only the tasks, due dates, and next steps relevant to them so execution stays focused.",
-    visible: ["My tasks", "Due today", "Client notes", "Completion updates"],
-    badge: { text: "Task-only view", color: C.green, bg: C.greenSoft },
-  },
+const cashMetrics = [
+  { label: "Open Estimates", value: "$186K", sub: "4 need follow-up", color: C.gold },
+  { label: "Outstanding Invoices", value: "$94.2K", sub: "$52K past due", color: C.red },
+  { label: "Collected MTD", value: "$127K", sub: "vs $142K target", color: C.green },
+];
+
+const taskItems = [
+  { title: "Follow up on Coastal Eats estimate — quiet 13 days", assignee: "Nate", due: "Today", priority: "High", client: "Coastal Eats Group", done: false, urgency: C.red },
+  { title: "Confirm permit status — Harbor View camera install", assignee: "Sarah", due: "Today", priority: "High", client: "Harbor View Apartments", done: false, urgency: C.red },
+  { title: "Approve revised scope for Westside Office mezzanine addition", assignee: "Nate", due: "10:30 AM", priority: "High", client: "Westside Office Park", done: false, urgency: C.gold },
+  { title: "Send revised quote to Bayline Medical after site walkthrough", assignee: "Nate", due: "Today", priority: "Medium", client: "Bayline Medical", done: false, urgency: C.gold },
+  { title: "Assign install crew for Pacific Health Partners — Apr 10", assignee: "Mike", due: "Tomorrow", priority: "Medium", client: "Pacific Health Partners", done: false, urgency: C.gold },
+  { title: "Archive Warehouse Automation Pilot and trigger close-out sequence", assignee: "System", due: "Tomorrow", priority: "Low", client: "West Coast Logistics", done: true, urgency: C.green },
+  { title: "Sync install date with Coastal Eats vendor coordinator", assignee: "Jess", due: "Apr 10", priority: "Low", client: "Coastal Eats Group", done: false, urgency: C.muted },
+];
+
+const calendarEvents = [
+  { day: 8, month: "APR", title: "Westside Office — Scope Approval + Kickoff", time: "10:30 AM", type: "Meeting", client: "Meridian Properties", color: C.blue },
+  { day: 9, month: "APR", title: "Riverton Properties — Site Walkthrough (3 locations)", time: "2:00 PM", type: "Site Visit", client: "Riverton Properties", color: C.green },
+  { day: 10, month: "APR", title: "Pacific Health Partners — Camera Install Day 1", time: "8:00 AM", type: "Installation", client: "Pacific Health Partners", color: C.gold },
+  { day: 11, month: "APR", title: "Harbor View — Permit Status Follow-Up Call", time: "11:00 AM", type: "Follow-up Call", client: "Harbor View Apartments", color: C.red },
+  { day: 14, month: "APR", title: "Northgate Retail — Estimate Walkthrough", time: "1:00 PM", type: "Site Visit", client: "Northgate Retail", color: C.blue },
+  { day: 15, month: "APR", title: "Coastal Eats Group — Scope Review Meeting", time: "3:30 PM", type: "Meeting", client: "Coastal Eats Group", color: C.green },
+];
+
+const pipelineBoard = [
+  { stage: "Lead", color: "#a78bfa", items: [
+    { title: "Bayline Medical", desc: "Structured cabling + AV refresh", value: "$34K" },
+    { title: "Sunridge HOA", desc: "Exterior camera system", value: "$22K" },
+  ]},
+  { stage: "Proposal Sent", color: "#fbbf24", items: [
+    { title: "Coastal Eats Group", desc: "POS integration + cameras", value: "$41K", flag: "13 days" },
+    { title: "Northgate Retail", desc: "Network upgrade + access control", value: "$28K", flag: "9 days" },
+    { title: "Urban Thread 2nd", desc: "Retail POS + cameras", value: "$19K" },
+  ]},
+  { stage: "Approved", color: "#34d399", items: [
+    { title: "Riverton Properties", desc: "Camera refresh — 3 locations", value: "$54K" },
+  ]},
+  { stage: "Scheduled", color: "#2dd4bf", items: [
+    { title: "Westside Office Park", desc: "Mezzanine buildout — cabling + AV", value: "$68K" },
+    { title: "Pacific Health Partners", desc: "Clinical network + door access", value: "$47K" },
+  ]},
+  { stage: "Work Started", color: "#fb923c", items: [
+    { title: "Harbor View Apartments", desc: "Security upgrade — 4 buildings", value: "$91K" },
+  ]},
+  { stage: "Work Complete", color: "#6b7280", items: [
+    { title: "Warehouse Auto Pilot", desc: "Walkthrough done — invoice pending", value: "$24K" },
+  ]},
+  { stage: "Invoice Sent", color: "#8aa7ff", items: [
+    { title: "Urban Thread Co.", desc: "Retail POS + camera system", value: "$24.9K" },
+  ]},
+  { stage: "Invoice Paid", color: "#2ec989", items: [
+    { title: "West Coast Logistics", desc: "Warehouse automation install", value: "$41.7K" },
+  ]},
 ];
 
 const briefFeed = [
@@ -526,12 +536,11 @@ function OverviewView() {
         <div style={{ position: "absolute", right: 120, bottom: -70, width: 180, height: 180, borderRadius: "50%", background: C.goldSoft, filter: "blur(28px)" }} />
         <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 22, position: "relative" }}>
           <div>
-            <Pill text="Apex Operations Automation Pilot" color={C.gold} bg={C.goldSoft} icon={Icons.spark} />
-            <div style={{ fontSize: 44, lineHeight: 1.02, letterSpacing: "-0.06em", fontWeight: 780, marginTop: 18, maxWidth: 720 }}>
+            <div style={{ fontSize: 44, lineHeight: 1.02, letterSpacing: "-0.06em", fontWeight: 780, maxWidth: 720 }}>
               One command center for pipeline, estimates, invoices, team activity, and the 5am owner brief.
             </div>
             <div style={{ marginTop: 14, maxWidth: 700, color: C.muted, fontSize: 15, lineHeight: 1.65 }}>
-              Built from the same founder workflow Nate uses to run Apex. Gmail and Google Calendar activity roll into a daily executive summary, while automations keep pipeline movement, quote follow-up, invoice risk, and handoffs from stalling silently.
+              Gmail and Google Calendar feed into a daily executive summary every weekday at 5am. Automations handle quote follow-up, invoice escalation, stage moves, and crew handoffs — so work moves forward without manual chasing.
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 22 }}>
               <Pill text="Daily executive brief" color={C.blue} bg={C.blueSoft} icon={Icons.mail} />
@@ -576,7 +585,7 @@ function OverviewView() {
           <SectionTitle
             eyebrow="Owner View"
             title="What needs your attention today"
-            description="The dashboard brings open work, flags, financial exposure, and team movement into one place so the owner leads instead of chasing."
+            description="Open work, flags, financial exposure, and team movement in one place. Lead instead of chase."
           />
           <div className="three-col" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
             {ownerQueue.map((item) => <QueueCard key={item.label} item={item} />)}
@@ -597,23 +606,18 @@ function OverviewView() {
 
         <Panel className="fade-in" style={{ padding: 22 }}>
           <SectionTitle
-            eyebrow="Live Integrations"
-            title="Inputs the system reads"
-            description="Founder story, surfaced visually: Apex reads Gmail and Google Calendar, then turns communication into operating visibility."
+            eyebrow="Today's Focus"
+            title="Immediate follow-up"
+            description="The shortest path to what needs attention right now."
           />
-          <div style={{ display: "grid", gap: 14 }}>
-            {[
-              { title: "Gmail", note: "Unread estimate replies, invoice responses, client approvals", icon: Icons.mail, color: C.blue, bg: C.blueSoft },
-              { title: "Google Calendar", note: "Kickoffs, walkthroughs, owner decisions, scheduled handoffs", icon: Icons.calendar, color: C.green, bg: C.greenSoft },
-              { title: "Automation Engine", note: "Follow-ups, escalations, reminders, next-step task creation", icon: Icons.automation, color: C.gold, bg: C.goldSoft },
-            ].map((item) => (
-              <div key={item.title} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, alignItems: "center", padding: 14, borderRadius: 18, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.color}22` }}>
-                <IconBadge icon={item.icon} color={item.color} bg={item.bg} />
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>{item.title}</div>
-                  <div style={{ marginTop: 4, fontSize: 13, color: C.muted, lineHeight: 1.45 }}>{item.note}</div>
+          <div style={{ display: "grid", gap: 10 }}>
+            {taskItems.filter(t => !t.done && (t.due === "Today" || t.due === "10:30 AM")).map((item, index) => (
+              <div key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, padding: 14, borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.urgency}22` }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.4 }}>{item.title}</div>
+                  <div style={{ marginTop: 5, fontSize: 12, color: C.muted }}>{item.client} · {item.assignee}</div>
                 </div>
-                <Pill text="Connected" color={item.color} bg={item.bg} />
+                <span style={{ display: "inline-flex", padding: "5px 10px", borderRadius: 999, background: `${item.urgency}18`, color: item.urgency, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>{item.priority}</span>
               </div>
             ))}
           </div>
@@ -630,7 +634,7 @@ function BriefView() {
         <SectionTitle
           eyebrow="Inbox Delivery"
           title="Daily Executive Brief"
-          description="Designed as the no-login-required owner touchpoint. It lands every weekday morning and gives decisions, risk, movement, and quiet revenue opportunities in one read."
+          description="Lands in the owner's inbox every weekday at 5:00 AM. Decisions, risk, movement, and quiet revenue — no login required."
           right={<Pill text="Weekdays at 5:00 AM" color={C.blue} bg={C.blueSoft} icon={Icons.clock} />}
         />
         <div className="brief-grid" style={{ display: "grid", gridTemplateColumns: "1.2fr 0.85fr", gap: 18 }}>
@@ -666,28 +670,27 @@ function BriefView() {
           </Panel>
           <div style={{ display: "grid", gap: 16 }}>
             <Panel style={{ padding: 18 }}>
-              <div style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: C.muted, fontWeight: 700 }}>Why this matters</div>
-              <div style={{ fontSize: 26, lineHeight: 1.12, letterSpacing: "-0.04em", fontWeight: 760, marginTop: 12 }}>
-                Most dashboards wait for the owner to remember to check them.
-              </div>
-              <div style={{ marginTop: 12, fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
-                This one comes to you. That message is repeated throughout the campaign, so the mockup makes the email itself a hero artifact.
+              <div style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: C.muted, fontWeight: 700 }}>Pipeline Pressure</div>
+              <div style={{ fontSize: 18, fontWeight: 740, marginTop: 10, lineHeight: 1.2 }}>Where today's pipeline work is bunching up</div>
+              <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+                {pipelinePressure.map((item) => (
+                  <div key={item.label} style={{ padding: 14, borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.color}22` }}>
+                    <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: item.color, fontWeight: 700 }}>{item.label}</div>
+                    <div style={{ fontSize: 26, fontWeight: 750, marginTop: 6, color: item.color }}>{item.value}</div>
+                    <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{item.sub}</div>
+                  </div>
+                ))}
               </div>
             </Panel>
             <Panel style={{ padding: 18 }}>
-              <div style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: C.muted, fontWeight: 700 }}>Brief includes</div>
+              <div style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: C.muted, fontWeight: 700 }}>Cash Snapshot</div>
+              <div style={{ fontSize: 18, fontWeight: 740, marginTop: 10, lineHeight: 1.2 }}>Open money split across estimates, receivables, and collected</div>
               <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-                {[
-                  "What moved forward yesterday",
-                  "What is stalled and why",
-                  "Open estimates and how long they've been out",
-                  "Outstanding and overdue invoices",
-                  "Projects that need to advance stages",
-                  "What needs a decision from the owner today",
-                ].map((item) => (
-                  <div key={item} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: C.text }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.gold, flexShrink: 0 }} />
-                    {item}
+                {cashMetrics.map((item) => (
+                  <div key={item.label} style={{ padding: 14, borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.color}22` }}>
+                    <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.14em", color: item.color, fontWeight: 700 }}>{item.label}</div>
+                    <div style={{ fontSize: 26, fontWeight: 750, marginTop: 6, color: item.color }}>{item.value}</div>
+                    <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{item.sub}</div>
                   </div>
                 ))}
               </div>
@@ -706,7 +709,7 @@ function PipelineView() {
         <SectionTitle
           eyebrow="Pipeline Tracking"
           title="Projects move through stages automatically"
-          description="The campaign promise is that nothing stalls silently. This view shows stage counts, value, and the reasons work might stop moving."
+          description="Stage movement is tracked in real time. Stalls, silences, and blockers surface before they cost revenue or crew time."
         />
         <div className="three-col" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16 }}>
           {pipelineStages.map((stage) => <ProgressStage key={stage.name} stage={stage} />)}
@@ -717,7 +720,7 @@ function PipelineView() {
         <SectionTitle
           eyebrow="Open Work"
           title="Cross-functional operations view"
-          description="Every open project, active task, and flag appears here so owners and managers stop piecing status together from calls, texts, and memory."
+          description="Every open project and active flag in one place. No piecing together status from calls, texts, or memory."
         />
         <DataTable
           columns={[
@@ -735,6 +738,37 @@ function PipelineView() {
           ]}
         />
       </Panel>
+
+      <Panel style={{ padding: 22 }}>
+        <SectionTitle
+          eyebrow="Pipeline Board"
+          title="Project Pipeline"
+        />
+        <div style={{ overflowX: "auto", paddingBottom: 8 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(8, minmax(160px, 1fr))", gap: 8, minWidth: 1200 }}>
+            {pipelineBoard.map((col) => (
+              <div key={col.stage} style={{ background: "rgba(255,255,255,0.018)", border: `1px solid ${col.color}28`, borderRadius: 14, minHeight: 180 }}>
+                <div style={{ padding: "10px 12px 9px", borderBottom: `1px solid ${col.color}28`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.16em", color: col.color }}>{col.stage}</span>
+                  <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 8, background: "rgba(255,255,255,0.06)", color: C.muted }}>{col.items.length}</span>
+                </div>
+                <div style={{ padding: 6, display: "flex", flexDirection: "column", gap: 5 }}>
+                  {col.items.map((card) => (
+                    <div key={card.title} style={{ background: "rgba(255,255,255,0.025)", border: `1px solid rgba(148,163,184,0.10)`, borderRadius: 10, padding: "9px 10px" }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 3 }}>{card.title}</div>
+                      <div style={{ fontSize: 10, color: C.muted, marginBottom: 6 }}>{card.desc}</div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: col.color }}>{card.value}</span>
+                        {card.flag ? <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 6px", borderRadius: 8, background: "rgba(255,107,103,0.14)", color: C.red }}>{card.flag}</span> : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Panel>
     </div>
   );
 }
@@ -746,8 +780,8 @@ function FinanceView() {
         <Panel style={{ padding: 22 }}>
           <SectionTitle
             eyebrow="Estimate Tracking"
-            title="See every open estimate and how long it has been out"
-            description="Quiet quotes are surfaced before the job is lost. Follow-ups can fire automatically, and owners see which opportunities are cooling."
+            title="Every open estimate and how long it has been out"
+            description="Quiet quotes surface before the job is lost. Follow-ups fire automatically and aging estimates escalate to the owner."
           />
           <DataTable
             columns={[
@@ -765,7 +799,7 @@ function FinanceView() {
           <SectionTitle
             eyebrow="Invoice Tracking"
             title="Outstanding, overdue, and at-risk invoices"
-            description="Cash flow problems should not arrive as surprises. This surface makes balance exposure and escalation status visible at a glance."
+            description="Balance exposure and escalation status visible at a glance. Cash flow problems surface before they become surprises."
           />
           <DataTable
             columns={[
@@ -783,48 +817,66 @@ function FinanceView() {
   );
 }
 
-function AutomationView() {
+function TasksView() {
+  const [filter, setFilter] = React.useState("all");
+  const filters = [
+    { key: "all", label: "All Tasks" },
+    { key: "high", label: "High Priority" },
+    { key: "today", label: "Due Today" },
+    { key: "open", label: "Open" },
+  ];
+  const filtered = taskItems.filter(t => {
+    if (filter === "high") return t.priority === "High" && !t.done;
+    if (filter === "today") return (t.due === "Today" || t.due === "10:30 AM") && !t.done;
+    if (filter === "open") return !t.done;
+    return true;
+  });
+  const openCount = taskItems.filter(t => !t.done).length;
+  const highCount = taskItems.filter(t => t.priority === "High" && !t.done).length;
+  const doneCount = taskItems.filter(t => t.done).length;
+
   return (
     <div style={{ display: "grid", gap: 20 }}>
-      <Panel style={{ padding: 24 }}>
-        <SectionTitle
-          eyebrow="Workflow Automation"
-          title="Follow-ups, escalations, and handoffs trigger without manual chasing"
-          description="This is the operational engine behind the campaign. The mockup makes automation visible so prospects understand the dashboard is tied to action, not just reporting."
-        />
-        <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          {automationFlows.map((flow) => (
-            <div key={flow.title} style={{ padding: 18, borderRadius: 22, background: "rgba(255,255,255,0.025)", border: `1px solid ${flow.color}22` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                <div style={{ fontSize: 19, fontWeight: 730 }}>{flow.title}</div>
-                <Pill text={flow.metric} color={flow.color} bg={flow.bg} />
+      <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
+        {[
+          { label: "Open Tasks", value: openCount, color: C.blue, glow: C.blueSoft, icon: Icons.bell },
+          { label: "High Priority", value: highCount, color: C.red, glow: C.redSoft, icon: Icons.alert },
+          { label: "Completed Today", value: doneCount, color: C.green, glow: C.greenSoft, icon: Icons.check },
+        ].map((card) => (
+          <Panel key={card.label} className="fade-in" style={{ padding: 20, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", inset: "auto -20px -28px auto", width: 110, height: 110, borderRadius: "50%", background: card.glow, filter: "blur(20px)" }} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, position: "relative" }}>
+              <div>
+                <div style={{ fontSize: 12, color: C.muted, textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 700 }}>{card.label}</div>
+                <div style={{ marginTop: 12, fontSize: 34, fontWeight: 750, letterSpacing: "-0.05em", color: card.color }}>{card.value}</div>
               </div>
-              <div style={{ marginTop: 12, color: C.muted, fontSize: 14, lineHeight: 1.6 }}>{flow.description}</div>
-              <div style={{ marginTop: 16, height: 10, borderRadius: 999, background: `${flow.color}22`, overflow: "hidden" }}>
-                <div style={{ width: flow.title === "Morning Executive Brief" ? "100%" : flow.title === "Project Stage Automation" ? "78%" : flow.title === "Estimate Silence Recovery" ? "64%" : "72%", height: "100%", borderRadius: 999, background: flow.color }} />
-              </div>
+              <IconBadge icon={card.icon} color={card.color} bg={card.glow} size={20} />
             </div>
-          ))}
-        </div>
-      </Panel>
+          </Panel>
+        ))}
+      </div>
 
       <Panel style={{ padding: 22 }}>
-        <SectionTitle
-          eyebrow="Automation Logic"
-          title="One example sequence"
-          description="This is especially useful for the reel and sales conversations because it turns the abstract promise into something concrete."
-        />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
-          {[
-            { title: "Day 0", body: "Estimate goes out", color: C.blue },
-            { title: "Day 7", body: "System sends follow-up and reminds owner", color: C.gold },
-            { title: "Day 14", body: "Quote marked quiet and escalated", color: C.red },
-            { title: "Next brief", body: "Owner sees it in the 5am summary", color: C.green },
-          ].map((step, index) => (
-            <div key={step.title} style={{ position: "relative", padding: 18, borderRadius: 18, background: "rgba(255,255,255,0.025)", border: `1px solid ${step.color}22` }}>
-              <div style={{ fontSize: 12, letterSpacing: "0.16em", textTransform: "uppercase", color: step.color, fontWeight: 700 }}>{step.title}</div>
-              <div style={{ marginTop: 10, lineHeight: 1.45, fontSize: 15 }}>{step.body}</div>
-              {index < 3 ? <div className="hide-mobile" style={{ position: "absolute", top: "50%", right: -8, transform: "translateY(-50%)" }}><Icons.chevron size={16} color={C.muted} /></div> : null}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 18, flexWrap: "wrap" }}>
+          <SectionTitle eyebrow="Action Queue" title="Open tasks and owner decisions" />
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {filters.map(f => (
+              <button key={f.key} onClick={() => setFilter(f.key)} style={{ padding: "6px 12px", borderRadius: 10, border: filter === f.key ? `1px solid ${C.gold}44` : `1px solid rgba(148,163,184,0.14)`, background: filter === f.key ? C.goldSoft : "transparent", color: filter === f.key ? C.gold : C.muted, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{f.label}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "grid", gap: 6 }}>
+          {filtered.map((item, index) => (
+            <div key={index} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto auto", gap: 12, alignItems: "center", padding: "12px 14px", borderRadius: 14, background: item.done ? "rgba(255,255,255,0.01)" : "rgba(255,255,255,0.025)", border: `1px solid ${item.done ? "rgba(148,163,184,0.06)" : item.urgency + "22"}`, opacity: item.done ? 0.55 : 1 }}>
+              <div style={{ width: 16, height: 16, borderRadius: 5, border: item.done ? "none" : `1.5px solid rgba(148,163,184,0.3)`, background: item.done ? C.green : "transparent", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                {item.done ? <Icons.check size={10} color="#fff" /> : null}
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: item.done ? 400 : 600, textDecoration: item.done ? "line-through" : "none", color: item.done ? C.muted : C.text }}>{item.title}</div>
+                <div style={{ marginTop: 4, fontSize: 12, color: C.muted }}>{item.client} · {item.assignee}</div>
+              </div>
+              <span style={{ display: "inline-flex", padding: "4px 9px", borderRadius: 8, background: item.priority === "High" ? "rgba(255,107,103,0.12)" : item.priority === "Medium" ? "rgba(255,179,77,0.12)" : "rgba(148,163,184,0.08)", color: item.priority === "High" ? C.red : item.priority === "Medium" ? C.amber : C.muted, fontSize: 11, fontWeight: 700 }}>{item.priority}</span>
+              <span style={{ fontSize: 12, color: item.due === "Today" || item.due === "10:30 AM" ? C.red : item.due === "Tomorrow" ? C.gold : C.muted, fontWeight: 700, minWidth: 60, textAlign: "right" }}>{item.due}</span>
             </div>
           ))}
         </div>
@@ -833,81 +885,58 @@ function AutomationView() {
   );
 }
 
-function AccessView() {
+function CalendarView() {
+  const typeColors = { "Meeting": C.blue, "Site Visit": C.green, "Installation": C.gold, "Follow-up Call": C.red };
+  const upcomingCount = calendarEvents.length;
+  const installCount = calendarEvents.filter(e => e.type === "Installation").length;
+  const meetingCount = calendarEvents.filter(e => e.type === "Meeting" || e.type === "Follow-up Call").length;
+
   return (
     <div style={{ display: "grid", gap: 20 }}>
-      <Panel style={{ padding: 24 }}>
-        <SectionTitle
-          eyebrow="Role-Based Access"
-          title="Owners see everything, managers see their scope, staff sees their tasks"
-          description="This feature is promised directly in the content pack, so the mockup calls it out with clear audience-specific views."
-        />
-        <div className="role-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
-          {roleViews.map((role) => (
-            <div key={role.role} style={{ padding: 20, borderRadius: 22, background: "rgba(255,255,255,0.025)", border: `1px solid ${role.badge.color}22` }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 24, fontWeight: 740 }}>{role.role}</div>
-                  <div style={{ marginTop: 10, color: C.muted, lineHeight: 1.55, fontSize: 14 }}>{role.summary}</div>
-                </div>
-                <Pill text={role.badge.text} color={role.badge.color} bg={role.badge.bg} />
+      <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16 }}>
+        {[
+          { label: "Upcoming Events", value: upcomingCount, color: C.blue, glow: C.blueSoft, icon: Icons.calendar },
+          { label: "Installations Scheduled", value: installCount, color: C.gold, glow: C.goldSoft, icon: Icons.automation },
+          { label: "Calls + Meetings", value: meetingCount, color: C.green, glow: C.greenSoft, icon: Icons.user },
+        ].map((card) => (
+          <Panel key={card.label} className="fade-in" style={{ padding: 20, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", inset: "auto -20px -28px auto", width: 110, height: 110, borderRadius: "50%", background: card.glow, filter: "blur(20px)" }} />
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, position: "relative" }}>
+              <div>
+                <div style={{ fontSize: 12, color: C.muted, textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 700 }}>{card.label}</div>
+                <div style={{ marginTop: 12, fontSize: 34, fontWeight: 750, letterSpacing: "-0.05em", color: card.color }}>{card.value}</div>
               </div>
-              <div style={{ marginTop: 16, display: "grid", gap: 10 }}>
-                {role.visible.map((item) => (
-                  <div key={item} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: "50%", background: role.badge.color, flexShrink: 0 }} />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
+              <IconBadge icon={card.icon} color={card.color} bg={card.glow} size={20} />
             </div>
-          ))}
+          </Panel>
+        ))}
+      </div>
+
+      <Panel style={{ padding: 22 }}>
+        <SectionTitle
+          eyebrow="Calendar"
+          title="Upcoming installs, site visits, calls, and decisions"
+          description="Owner-linked events pulled from Google Calendar. Kickoffs, walkthroughs, and follow-ups all in one view."
+        />
+        <div style={{ display: "grid", gap: 8 }}>
+          {calendarEvents.map((event, index) => {
+            const typeColor = typeColors[event.type] || C.muted;
+            return (
+              <div key={index} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 14, alignItems: "center", padding: "12px 16px", borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${typeColor}22` }}>
+                <div style={{ width: 44, textAlign: "center", background: `${typeColor}16`, border: `1px solid ${typeColor}30`, borderRadius: 10, padding: "6px 4px", flexShrink: 0 }}>
+                  <div style={{ fontSize: 8, textTransform: "uppercase", color: typeColor, letterSpacing: "0.5px", fontWeight: 700 }}>{event.month}</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: C.text, lineHeight: 1.1 }}>{event.day}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700 }}>{event.title}</div>
+                  <div style={{ marginTop: 4, fontSize: 12, color: C.muted }}>{event.client} · {event.time}</div>
+                </div>
+                <span style={{ display: "inline-flex", padding: "5px 10px", borderRadius: 999, background: `${typeColor}16`, color: typeColor, fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>{event.type}</span>
+              </div>
+            );
+          })}
         </div>
       </Panel>
-
-      <div className="detail-grid" style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 18 }}>
-        <Panel style={{ padding: 22 }}>
-          <SectionTitle
-            eyebrow="Manager Snapshot"
-            title="Example scoped view"
-            description="Managers do not need the owner's full financial picture. They need blockers, assignments, and what must move today."
-          />
-          <DataTable
-            columns={[
-              { key: "task", label: "Task" },
-              { key: "assignee", label: "Assignee", muted: true },
-              { key: "due", label: "Due" },
-              { key: "status", label: "Status", render: (value, row) => <StatusPill tone={row.tone}>{value}</StatusPill> },
-            ]}
-            rows={[
-              { task: "Confirm permit follow-up", assignee: "Sarah", due: "Today", status: "Open", tone: "warn" },
-              { task: "Crew handoff for Westside kickoff", assignee: "Mike", due: "10:30 AM", status: "Ready", tone: "good" },
-              { task: "Client approval on Harbor View map", assignee: "Nate", due: "Past due", status: "Blocked", tone: "bad" },
-              { task: "Sync Coastal Eats install date", assignee: "Jess", due: "2:00 PM", status: "In Motion", tone: "good" },
-            ]}
-          />
-        </Panel>
-        <Panel style={{ padding: 22 }}>
-          <SectionTitle
-            eyebrow="Staff View"
-            title="Task-only clarity"
-            description="The staff experience keeps execution focused by showing what to do next, not the whole business."
-          />
-          <div style={{ display: "grid", gap: 12 }}>
-            {[
-              { task: "Install exterior cameras (6)", due: "Today", color: C.green },
-              { task: "Upload site photos to project record", due: "Today", color: C.blue },
-              { task: "Confirm equipment delivery window", due: "Tomorrow", color: C.gold },
-              { task: "Await owner-approved camera map", due: "Blocked", color: C.red },
-            ].map((item) => (
-              <div key={item.task} style={{ padding: 14, borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.color}22`, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                <div style={{ fontSize: 14 }}>{item.task}</div>
-                <div style={{ fontSize: 12, color: item.color, fontWeight: 700 }}>{item.due}</div>
-              </div>
-            ))}
-          </div>
-        </Panel>
-      </div>
     </div>
   );
 }
@@ -920,28 +949,28 @@ function App() {
 
   const titles = {
     overview: {
-      title: "Apex Operations Automation",
-      description: "Interactive campaign demo modeled as a premium operations command center.",
+      title: "Command Center",
+      description: "Active operations across pipeline, estimates, invoices, and team activity.",
     },
     brief: {
-      title: "Daily Executive Brief",
-      description: "No-login owner summary delivered via email every weekday morning.",
+      title: "Executive Brief",
+      description: "Weekday morning summary delivered at 5:00 AM. Decisions, risk, and movement in one read.",
     },
     pipeline: {
-      title: "Pipeline Visibility",
-      description: "Track stage movement automatically and catch silent stalls early.",
+      title: "Pipeline",
+      description: "Stage movement tracked automatically. Nothing stalls without surfacing first.",
     },
     finance: {
       title: "Estimates + Invoices",
-      description: "Surface open revenue, quiet quotes, overdue balances, and risk.",
+      description: "Open revenue, aging quotes, outstanding balances, and cash flow risk.",
     },
-    automation: {
-      title: "Workflow Automation",
-      description: "Follow-ups, escalations, reminders, and handoffs move without manual chasing.",
+    tasks: {
+      title: "Action Queue",
+      description: "Open tasks, owner decisions, and what needs movement today.",
     },
-    access: {
-      title: "Role-Based Access",
-      description: "Owners, managers, and staff each see the right level of visibility.",
+    calendar: {
+      title: "Calendar",
+      description: "Upcoming installs, site visits, calls, and owner-linked decisions.",
     },
   };
 
@@ -977,14 +1006,14 @@ function App() {
             </div>
           </div>
           <div style={{ marginTop: 8, color: C.muted, fontSize: 11.5, lineHeight: 1.42 }}>
-            Founder-built operations system for business owners who are tired of chasing status.
+            Apex Network Systems — Mission Control
           </div>
         </div>
 
         <Panel style={{ padding: 12, background: "rgba(255,255,255,0.03)" }}>
-          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.16em", color: C.gold, fontWeight: 700 }}>Campaign Demo</div>
-          <div style={{ fontSize: 20, fontWeight: 760, marginTop: 8 }}>5:00 AM</div>
-          <div style={{ marginTop: 3, fontSize: 12, color: C.muted }}>Executive brief delivery time</div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.16em", color: C.green, fontWeight: 700 }}>System Status</div>
+          <div style={{ fontSize: 20, fontWeight: 760, marginTop: 8 }}>Active</div>
+          <div style={{ marginTop: 3, fontSize: 12, color: C.muted }}>Brief delivered at 5:00 AM</div>
           <div style={{ marginTop: 10, display: "flex", gap: 6, flexWrap: "wrap" }}>
             <Pill text="Gmail" color={C.blue} bg={C.blueSoft} icon={Icons.mail} />
             <Pill text="Calendar" color={C.green} bg={C.greenSoft} icon={Icons.calendar} />
@@ -1046,8 +1075,8 @@ function App() {
               <div style={{ marginTop: 8, color: C.muted, fontSize: 14, lineHeight: 1.55 }}>{titles[view].description}</div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <Pill text="Interactive mockup" color={C.gold} bg={C.goldSoft} icon={Icons.spark} />
-              <Pill text="For demos only" color={C.blue} bg={C.blueSoft} icon={Icons.brief} />
+              <Pill text="Live as of 5:00 AM" color={C.green} bg={C.greenSoft} icon={Icons.check} />
+              <Pill text="April 8, 2026" color={C.blue} bg={C.blueSoft} icon={Icons.clock} />
             </div>
           </div>
 
@@ -1055,8 +1084,8 @@ function App() {
           {view === "brief" ? <BriefView /> : null}
           {view === "pipeline" ? <PipelineView /> : null}
           {view === "finance" ? <FinanceView /> : null}
-          {view === "automation" ? <AutomationView /> : null}
-          {view === "access" ? <AccessView /> : null}
+          {view === "tasks" ? <TasksView /> : null}
+          {view === "calendar" ? <CalendarView /> : null}
         </div>
       </main>
     </div>
