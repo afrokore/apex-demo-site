@@ -702,7 +702,7 @@ function BriefView() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))", gap: 10, marginBottom: 18 }}>
           {kpiItems.map((item) => (
             <div key={item.label} style={{ padding: 14, borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.color}22` }}>
-              <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.14em", color: item.color, fontWeight: 700 }}>{item.label}</div>
+              <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.14em", color: item.color, fontWeight: 700, minHeight: "28px", display: "flex", alignItems: "flex-start" }}>{item.label}</div>
               <div style={{ fontSize: 26, fontWeight: 750, marginTop: 8, color: item.color }}>{item.value}</div>
               <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{item.sub}</div>
             </div>
