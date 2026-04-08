@@ -293,6 +293,22 @@ const invoices = [
   { client: "West Coast Logistics", invoice: "#INV-1074", amount: "$41,690", due: "7 days overdue", status: "Follow-Up Sent", owner: "System", tone: "warn" },
 ];
 
+const financeKPIs = [
+  { label: "This Month Invoiced", value: "$66.5K", sub: "3 invoices sent or collected this cycle", color: C.blue, glow: C.blueSoft, icon: Icons.finance },
+  { label: "Collected", value: "$127K", sub: "2 invoices converted to cash", color: C.green, glow: C.greenSoft, icon: Icons.check },
+  { label: "Outstanding", value: "$94.2K", sub: "3 open items remain active", color: C.gold, glow: C.goldSoft, icon: Icons.clock },
+  { label: "Pipeline", value: "$186K", sub: "4 quotes waiting to convert", color: "#a78bfa", glow: "rgba(167,139,250,0.16)", icon: Icons.pipeline },
+];
+
+const revenueChartData = [
+  { month: "Nov '25", invoiced: 28000, collected: 22000 },
+  { month: "Dec '25", invoiced: 41000, collected: 38000 },
+  { month: "Jan '26", invoiced: 52000, collected: 47000 },
+  { month: "Feb '26", invoiced: 67000, collected: 58000 },
+  { month: "Mar '26", invoiced: 89000, collected: 73000 },
+  { month: "Apr '26", invoiced: 66500, collected: 31000 },
+];
+
 const pipelineMixSegments = [
   { label: "Proposals Out", value: 88, display: "$88K", color: C.gold },
   { label: "Approved + Scheduled", value: 169, display: "$169K", color: C.green },
@@ -819,14 +835,69 @@ function PipelineView() {
 }
 
 function FinanceView() {
+  const maxVal = Math.max(...revenueChartData.flatMap(d => [d.invoiced, d.collected]));
+  const leftPad = 52, topPad = 10, bottomPad = 28;
+  const vbW = 580, vbH = 200;
+  const chartW = vbW - leftPad - 10;
+  const chartH = vbH - topPad - bottomPad;
+  const groupW = chartW / revenueChartData.length;
+  const barW = 24, barGap = 6, pairW = barW * 2 + barGap;
+
   return (
     <div style={{ display: "grid", gap: 20 }}>
+      <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16 }}>
+        {financeKPIs.map((card) => <SummaryCard key={card.label} card={card} />)}
+      </div>
+
+      <Panel className="fade-in" style={{ padding: 22 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 18, flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.16em", color: C.muted, fontWeight: 700, marginBottom: 6 }}>Revenue Trend</div>
+            <div style={{ fontSize: 20, fontWeight: 740 }}>Invoiced vs Collected — Last 6 Months</div>
+          </div>
+          <div style={{ display: "flex", gap: 18, alignItems: "center" }}>
+            {[{ label: "Invoiced", color: C.blue }, { label: "Collected", color: C.green }].map(l => (
+              <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <div style={{ width: 10, height: 10, borderRadius: 3, background: l.color }} />
+                <span style={{ fontSize: 12, color: C.muted }}>{l.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <svg width="100%" viewBox={`0 0 ${vbW} ${vbH}`} style={{ display: "block" }}>
+          {[0, 0.25, 0.5, 0.75, 1].map((pct, i) => {
+            const y = topPad + chartH - pct * chartH;
+            const val = Math.round(maxVal * pct / 1000);
+            return (
+              <g key={i}>
+                <line x1={leftPad} y1={y} x2={vbW - 10} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth={1} />
+                <text x={leftPad - 6} y={y + 4} textAnchor="end" fill={C.muted} fontSize={9}>${val}K</text>
+              </g>
+            );
+          })}
+          {revenueChartData.map((d, i) => {
+            const gx = leftPad + i * groupW;
+            const bx = gx + (groupW - pairW) / 2;
+            const invH = (d.invoiced / maxVal) * chartH;
+            const colH = (d.collected / maxVal) * chartH;
+            const baseY = topPad + chartH;
+            return (
+              <g key={i}>
+                <rect x={bx} y={baseY - invH} width={barW} height={invH} rx={3} fill={`${C.blue}44`} stroke={`${C.blue}99`} strokeWidth={1} />
+                <rect x={bx + barW + barGap} y={baseY - colH} width={barW} height={colH} rx={3} fill={`${C.green}44`} stroke={`${C.green}99`} strokeWidth={1} />
+                <text x={gx + groupW / 2} y={baseY + 18} textAnchor="middle" fill={C.muted} fontSize={9}>{d.month}</text>
+              </g>
+            );
+          })}
+        </svg>
+      </Panel>
+
       <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
         <Panel style={{ padding: 22 }}>
           <SectionTitle
             eyebrow="Estimate Tracking"
             title="Every open estimate and how long it has been out"
-            description="Quiet quotes surface before the job is lost. Follow-ups fire automatically and aging estimates escalate to the owner."
+            description="Quiet quotes surface before the job is lost. Follow-ups fire automatically."
           />
           <DataTable
             columns={[
@@ -844,7 +915,7 @@ function FinanceView() {
           <SectionTitle
             eyebrow="Invoice Tracking"
             title="Outstanding, overdue, and at-risk invoices"
-            description="Balance exposure and escalation status visible at a glance. Cash flow problems surface before they become surprises."
+            description="Balance exposure and escalation status visible at a glance."
           />
           <DataTable
             columns={[
