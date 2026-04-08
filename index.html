@@ -293,6 +293,19 @@ const invoices = [
   { client: "West Coast Logistics", invoice: "#INV-1074", amount: "$41,690", due: "7 days overdue", status: "Follow-Up Sent", owner: "System", tone: "warn" },
 ];
 
+const pipelineMixSegments = [
+  { label: "Proposals Out", value: 88, display: "$88K", color: C.gold },
+  { label: "Approved + Scheduled", value: 169, display: "$169K", color: C.green },
+  { label: "Work in Progress", value: 91, display: "$91K", color: C.blue },
+  { label: "Ready to Invoice", value: 24, display: "$24K", color: C.amber },
+];
+
+const financialSegments = [
+  { label: "Collected MTD", value: 127, display: "$127K", color: C.green },
+  { label: "Outstanding Invoices", value: 94, display: "$94.2K", color: C.red },
+  { label: "Open Estimates", value: 186, display: "$186K", color: C.gold },
+];
+
 const pipelinePressure = [
   { label: "Proposal Sent", value: "8", sub: "$186K in open quotes", color: C.gold },
   { label: "At Risk / Stalled", value: "3", sub: "timeline or approval issue", color: C.red },
@@ -528,56 +541,83 @@ function DataTable({ columns, rows }) {
   );
 }
 
+function PieChart({ eyebrow, title, segments, totalLabel, totalSub }) {
+  const r = 58;
+  const cx = 85;
+  const cy = 85;
+  const circ = 2 * Math.PI * r;
+  const strokeW = 22;
+  const total = segments.reduce((sum, s) => sum + s.value, 0);
+  let cumulative = 0;
+  const slices = segments.map(s => {
+    const len = (s.value / total) * circ;
+    const slice = { ...s, len, offset: cumulative };
+    cumulative += len;
+    return slice;
+  });
+  return (
+    <Panel className="fade-in" style={{ padding: 22 }}>
+      <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.16em", color: C.muted, fontWeight: 700, marginBottom: 6 }}>{eyebrow}</div>
+      <div style={{ fontSize: 20, fontWeight: 740, marginBottom: 20 }}>{title}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+        <div style={{ flexShrink: 0 }}>
+          <svg width={170} height={170} viewBox="0 0 170 170">
+            <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={strokeW} />
+            {slices.map((s, i) => (
+              <circle key={i} cx={cx} cy={cy} r={r} fill="none"
+                stroke={s.color} strokeWidth={strokeW}
+                strokeDasharray={`${s.len} ${circ}`}
+                strokeDashoffset={circ / 4 - s.offset}
+                strokeLinecap="butt"
+              />
+            ))}
+            <text x={cx} y={cy - 8} textAnchor="middle" fill={C.text} fontSize="18" fontWeight="700">{totalLabel}</text>
+            <text x={cx} y={cy + 12} textAnchor="middle" fill={C.muted} fontSize="11">{totalSub}</text>
+          </svg>
+        </div>
+        <div style={{ flex: 1, display: "grid", gap: 14 }}>
+          {segments.map((s, i) => (
+            <div key={i}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 5 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: 3, background: s.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, color: C.muted }}>{s.label}</span>
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 700, color: s.color }}>{s.display}</span>
+              </div>
+              <div style={{ height: 4, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${(s.value / total) * 100}%`, background: s.color, borderRadius: 999 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
 function OverviewView() {
   return (
     <div style={{ display: "grid", gap: 22 }}>
-      <Panel className="fade-in" style={{ padding: 26, overflow: "hidden", position: "relative" }}>
-        <div style={{ position: "absolute", right: -60, top: -40, width: 220, height: 220, borderRadius: "50%", background: C.blueSoft, filter: "blur(30px)" }} />
-        <div style={{ position: "absolute", right: 120, bottom: -70, width: 180, height: 180, borderRadius: "50%", background: C.goldSoft, filter: "blur(28px)" }} />
-        <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 22, position: "relative" }}>
-          <div>
-            <div style={{ fontSize: 44, lineHeight: 1.02, letterSpacing: "-0.06em", fontWeight: 780, maxWidth: 720 }}>
-              One command center for pipeline, estimates, invoices, team activity, and the 5am owner brief.
-            </div>
-            <div style={{ marginTop: 14, maxWidth: 700, color: C.muted, fontSize: 15, lineHeight: 1.65 }}>
-              Gmail and Google Calendar feed into a daily executive summary every weekday at 5am. Automations handle quote follow-up, invoice escalation, stage moves, and crew handoffs — so work moves forward without manual chasing.
-            </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 22 }}>
-              <Pill text="Daily executive brief" color={C.blue} bg={C.blueSoft} icon={Icons.mail} />
-              <Pill text="Pipeline tracking" color={C.green} bg={C.greenSoft} icon={Icons.pipeline} />
-              <Pill text="Estimate aging" color={C.gold} bg={C.goldSoft} icon={Icons.clock} />
-              <Pill text="Invoice escalation" color={C.red} bg={C.redSoft} icon={Icons.flag} />
-            </div>
-          </div>
-          <Panel style={{ padding: 20, background: "linear-gradient(180deg, rgba(16, 16, 16, 0.92), rgba(8, 8, 8, 0.92))", alignSelf: "stretch" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <div style={{ fontSize: 12, color: C.muted, textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 700 }}>5:00 AM Delivery</div>
-                <div style={{ fontSize: 22, fontWeight: 740, marginTop: 10 }}>Daily Executive Brief</div>
-              </div>
-              <IconBadge icon={Icons.mail} color={C.blue} bg={C.blueSoft} />
-            </div>
-            <div style={{ marginTop: 18, display: "grid", gap: 10 }}>
-              {briefFeed.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                  <div key={index} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, alignItems: "flex-start", padding: 12, borderRadius: 16, background: "rgba(255,255,255,0.03)", border: `1px solid ${item.color}22` }}>
-                    <IconBadge icon={Icon} color={item.color} bg={item.bg} size={16} />
-                    <div>
-                      <div style={{ fontSize: 13, lineHeight: 1.45 }}>{item.text}</div>
-                      <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{item.time}</div>
-                    </div>
-                    <StatusPill tone={item.type === "Risk" ? "bad" : item.type === "Attention" ? "warn" : item.type === "Complete" ? "good" : "good"}>{item.type}</StatusPill>
-                  </div>
-                );
-              })}
-            </div>
-          </Panel>
-        </div>
-      </Panel>
-
       <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 16 }}>
         {summaryCards.map((card) => <SummaryCard key={card.label} card={card} />)}
+      </div>
+
+      <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+        <PieChart
+          eyebrow="Pipeline Mix"
+          title="Active pipeline by stage value"
+          segments={pipelineMixSegments}
+          totalLabel="$372K"
+          totalSub="in pipeline"
+        />
+        <PieChart
+          eyebrow="Financial Snapshot"
+          title="Revenue status this month"
+          segments={financialSegments}
+          totalLabel="$407K"
+          totalSub="tracked"
+        />
       </div>
 
       <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1.3fr 1fr", gap: 18 }}>
@@ -585,7 +625,7 @@ function OverviewView() {
           <SectionTitle
             eyebrow="Owner View"
             title="What needs your attention today"
-            description="Open work, flags, financial exposure, and team movement in one place. Lead instead of chase."
+            description="Open work, flags, financial exposure, and team movement in one place."
           />
           <div className="three-col" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12 }}>
             {ownerQueue.map((item) => <QueueCard key={item.label} item={item} />)}
@@ -606,20 +646,25 @@ function OverviewView() {
 
         <Panel className="fade-in" style={{ padding: 22 }}>
           <SectionTitle
-            eyebrow="Today's Focus"
-            title="Immediate follow-up"
-            description="The shortest path to what needs attention right now."
+            eyebrow="5:00 AM Delivery"
+            title="Daily Executive Brief"
+            description="This morning's automated brief — decisions, risk, and movement."
+            right={<Pill text="Delivered" color={C.green} bg={C.greenSoft} icon={Icons.check} />}
           />
           <div style={{ display: "grid", gap: 10 }}>
-            {taskItems.filter(t => !t.done && (t.due === "Today" || t.due === "10:30 AM")).map((item, index) => (
-              <div key={index} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, padding: 14, borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.urgency}22` }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.4 }}>{item.title}</div>
-                  <div style={{ marginTop: 5, fontSize: 12, color: C.muted }}>{item.client} · {item.assignee}</div>
+            {briefFeed.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div key={index} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, alignItems: "flex-start", padding: 14, borderRadius: 16, background: "rgba(255,255,255,0.025)", border: `1px solid ${item.color}22` }}>
+                  <IconBadge icon={Icon} color={item.color} bg={item.bg} size={16} />
+                  <div>
+                    <div style={{ fontSize: 13, lineHeight: 1.45 }}>{item.text}</div>
+                    <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>{item.time}</div>
+                  </div>
+                  <StatusPill tone={item.type === "Risk" ? "bad" : item.type === "Attention" ? "warn" : "good"}>{item.type}</StatusPill>
                 </div>
-                <span style={{ display: "inline-flex", padding: "5px 10px", borderRadius: 999, background: `${item.urgency}18`, color: item.urgency, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>{item.priority}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Panel>
       </div>
