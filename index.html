@@ -491,7 +491,7 @@ function SummaryCard({ card }) {
 function QueueCard({ item }) {
   return (
     <div style={{ padding: 16, borderRadius: 18, background: "rgba(255,255,255,0.03)", border: `1px solid ${item.color}33` }}>
-      <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 700 }}>{item.label}</div>
+      <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.16em", fontWeight: 700, minHeight: "2.5em", display: "flex", alignItems: "flex-start" }}>{item.label}</div>
       <div style={{ fontSize: 32, fontWeight: 750, marginTop: 10, color: item.color }}>{item.value}</div>
       <div style={{ fontSize: 13, color: C.muted, marginTop: 8 }}>{item.note}</div>
     </div>
